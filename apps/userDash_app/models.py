@@ -58,10 +58,21 @@ class UserManager(models.Manager):
         uPassword = user.password.encode()
         if user and bcrypt.hashpw(password, uPassword) == uPassword:
             print "Okay!"
-            return True
+            return (True, user.id)
         else:
             print "Not Okay!"
             return False
+
+    def change_pass(self, data):
+        if data['password'] == data['cPassword'] and len(data['password']) > 2:
+            password = data['password'].encode()
+            hashed = bcrypt.hashpw(password, bcrypt.gensalt())
+            user = User.objects.get(pk = data['id'])
+            user.password = hashed
+            user.save()
+            return (True, "password changed")
+        else:
+            return (False, "password not changed")
 
 class User(models.Model):
     authorization = (

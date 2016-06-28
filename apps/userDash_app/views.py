@@ -12,9 +12,24 @@ def index(request):
         pass
     return render(request, 'uDash/index.html')
 
-def login(request):
-    print "about to render login"
-    return render(request, 'uDash/signin.html')
+def login(request, methods=['POST']):
+    if request.method == 'POST':
+            data = {
+                "email": request.POST['email'],
+                "password": request.POST['password']
+            }
+            theMessage = User.userManager.login(data)
+            message = dict()
+            if theMessage[0]:
+                request.session['user_id'] = theMessage[1]
+                message['success'] = "Sucessfully Logged In!"
+                return redirect('/board')
+                # return render(request, 'board/index.html', message)
+            else:
+                messages.add_message(request, messages.ERROR, "Invalid Login")
+                return render(request, 'uDash/signin.html', message)
+    else:
+        return render(request, 'uDash/signin.html')
 
 def register(request):
     print "about to render register"
@@ -34,7 +49,8 @@ def registerUser(request, methods=['POST']):
 
     if theMessage[0]:
         request.session['user_id'] = theMessage[1]
-        return render(request, 'uDash/register.html')
+        return redirect('/board/index')
+        # return render(request, 'board/index.html', message)
     else:
         data = theMessage[1]
         for message in data:
@@ -42,35 +58,78 @@ def registerUser(request, methods=['POST']):
             messages.add_message(request, messages.ERROR, data[message])
         return redirect('/register')
 
-def signin(request):
-    data = {
-        "email": request.POST['email'],
-        "password": request.POST['password']
-    }
-    theMessage = User.userManager.login(data)
-    message = dict()
-    if theMessage:
-        message['success'] = "Sucessfully Logged In!"
-        print message['success']
-        # return render(request, 'lr_app/signin.html', message)
-    else:
-        message['failedLogin'] = "Invalid Login"
-        print message['failedLogin']
-        # return render(request, 'lr_app/signin.html', message)
-    return render(request, 'uDash/signin.html')
+def wall(request):
+    pass
 
 def adminPanel(request):
-    user = User.objects.filter( pk = request.session['user_id'] )
-    if int(user[0].auth_level) == 0:
-        print "user is an admin"
+    if int(request.session['user_id']) == 0:
+        user = User.objects.filter( pk = request.session['user_id'] )
         all_users = User.objects.all()
         data = {'all_users': all_users}
-    return render(request, 'uDash/adminPanel.html', data)
+        return render(request, 'uDash/adminPanel.html', data)
+    else:
+        return render(request, 'uDash/index.html')
 
 def remove(request, id):
-    print id
-    return render(request, 'uDash/adminPanel.html', data)
+    user = User.objects.filter(id=id)
+    user.delete()
+    return redirect('/adminPanel')
 
-def edit(request, id):
+def edit(request, id = None):
+
+    def getUser():
+        user = User.objects.get(pk = request.session['user_id'])
+        return user
+
+    if request.method == 'POST' and id == None:
+        user = getUser()
+        print user.first_name
+        if request.POST['first_name']:
+            print "first_name was present"
+            user.first_name = request.POST['first_name']
+            user.save()
+        if request.POST['last_name']:
+            print "last_name was present"
+            user.last_name = request.POST['last_name']
+            user.save()
+        if request.POST['email']:
+            print "email was present", request.POST['email']
+            user.email = request.POST['email']
+            user.save()
+
+        data = { 'user': user }
+        return render(request, 'uDash/editUser.html', data)
+    else:
+        if id is not None:
+            print id
+            print request.session['user_id']
+            user = User.objects.get(id=id)
+            data = { 'user': user }
+            return render(request, 'uDash/editUser.html', data)
+        else:
+            # this is for non-admin users
+            print "no id"
+            user = User.objects.get(id = request.session['user_id'])
+            data = { 'user': user }
+            return render(request, 'uDash/editUser.html', data)
+
+def change_pass(request, id):
+    data = {'id': id,
+            'password': request.POST['password'],
+            'cPassword': request.POST['cPassword']
+           }
+    theMessage = User.userManager.change_pass(data)
+    if theMessage[0]:
+        messages.add_message(request, messages.SUCCESS, "Your password was sucessfully changed")
+        return redirect('/edit')
+        # return render(request, 'uDash/editUser.html')
+    else:
+        messages.add_message(request, messages.ERROR, "Your password could not be changed")
+        return redirect('/edit')
+
+def change_desc(request, id):
     print id
-    return render(request, 'uDash/adminPanel.html', data)
+    return render(request, 'uDash/editUser.html')
+def logout(request):
+    request.session.flush()
+    return redirect('/')

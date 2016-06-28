@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'apps.messageBoard',
     'apps.userDash_app',
     'django_extensions',
     'django.contrib.admin',
@@ -76,16 +77,28 @@ WSGI_APPLICATION = 'userDashboard.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
+### FOR DEPLOYMENT ###
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'user_dashboard',
+#         'USER': 'timlichen',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
+
+### LOCAL DATABASE ###
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'user_dashboard',
-        'USER': 'timlichen',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
 
 
 # Password validation
@@ -126,3 +139,30 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
+# gunicorn --bind 0.0.0.0:8000 userDashboard.wsgi:application
+
+# description "Gunicorn application server handling product_catalog"
+# start on runlevel [2345]
+# stop on runlevel [!2345]
+# respawn
+# setuid ubuntu
+# setgid www-data
+# chdir /home/ubuntu/djangoUserDashboard
+# exec user_dash_env/bin/gunicorn --workers 3 --bind unix:/home/ubuntu/user_dashboard/userDashboard.sock userDashboard.wsgi:application
+
+
+# server {
+#     listen 80;
+#     server_name 52.10.0.152;
+#     location = /favicon.ico { access_log off; log_not_found off; }
+#     location /static/ {
+#         root /home/ubuntu/djangoUserDashboard;
+#     }
+#     location / {
+#         include proxy_params;
+#         proxy_pass http://unix:/home/ubuntu/djangoUserDashboard/userDashboard.sock;
+#     }
+# }
+
+# 3
