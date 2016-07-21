@@ -18,5 +18,5 @@ from django.conf.urls import url, include
 
 urlpatterns = [
     url(r'^', include('apps.userDash_app.urls')),
-    url(r'^board', include('apps.messageBoard.urls')),
+    url(r'^board/', include('apps.messageBoard.urls')),
 ]

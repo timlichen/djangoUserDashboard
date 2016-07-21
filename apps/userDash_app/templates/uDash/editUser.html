@@ -15,10 +15,10 @@
           <a href="{% url 'home' %}">Home</a>
         </li>
         <li role="presentation">
-          <a href="{% url 'login' %}">Login</a>
-        </li>
-        <li role="presentation" class="active">
           <a href="{% url 'edit' %}">Profile</a>
+        </li>
+        <li role="presentation">
+          <a href="{% url 'logout' %}">Logout</a>
         </li>
       </ul>
     </nav>
@@ -70,7 +70,7 @@
           {% csrf_token %}
           <div class="form-group">
             <label for='description'>Description</label>
-            <textarea class="form-control" rows="5" id="description" name="description"></textarea>
+            <textarea class="form-control" rows="5" id="description" name="description" placeholder="{{user.description}}"></textarea>
           </div>
           <button type="submit" class="btn btn-default">Submit</button>
         </form>

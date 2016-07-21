@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Register</title>
+  <title>Add New User</title>
   {% load staticfiles %}
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/bootstrap-theme-min.css' %}">
@@ -17,16 +17,16 @@
       <a href="{% url 'home' %}">Home</a>
     </li>
     <li role="presentation">
-      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'panel' %}">Profile</a>
     </li>
-    <li role="presentation" class="active">
-      <a href="{% url 'register' %}">Register</a>
+    <li role="presentation">
+      <a href="{% url 'logout' %}">Logout</a>
     </li>
   </ul>
   <div class="container">
         <div class="row">
           <div class="col-md-4">
-            <h1>Register</h1>
+            <h1>Add New User</h1>
             {% if messages %}
               <ul>
                 {% for message in messages %}
@@ -36,7 +36,7 @@
                 {% endfor %}
               </ul>
               {% endif %}
-            <form action={% url 'registerUser' %} method="Post">
+            <form action={% url 'createNewUser' %} method="Post">
             {% csrf_token %}
             <div class="form-group">
               <label for="email">Email Address</label>
@@ -60,11 +60,6 @@
             </div>
             <button type="submit" class="btn btn-default">Submit</button>
           </form>
-          <p>
-            <br>
-              Already have an account?
-              <a href="{% url 'login' %}">Click here.</a>
-          </p>
         </div>
       </div>
     </div>

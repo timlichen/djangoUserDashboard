@@ -8,8 +8,8 @@
   <link rel="stylesheet" href="{% static 'css/bootstrap-theme-min.css' %}">
   <script src="{% static 'js/bootstrap.min.js' %}"></script>
   <style>
-    .container{
-      /*background-color: lightblue*/
+    .jumbotron{
+      margin-top: 30px
     }
   </style>
 </head>
@@ -19,7 +19,12 @@
       <li role="presentation" class="active">
         <a href="{% url 'home' %}">Home</a>
       </li>
-      <li role="presentation"><a href="{% url 'login' %}">Login</a></li>
+      <li role="presentation">
+        <a href="{% url 'login' %}">Login</a>
+      </li>
+      <li role="presentation">
+        <a href="{% url 'register' %}">Register</a>
+      </li>
     </ul>
   </nav>
 <div class="container">
@@ -31,7 +36,7 @@
           <p><a class="btn btn-primary btn-lg" href="#" role="button">Start</a></p>
         </div>
       </div>
-    </div>
   </div>
+</div>
 </body>
 </html>

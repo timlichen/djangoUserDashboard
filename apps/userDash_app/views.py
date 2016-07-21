@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect
+from django.core.urlresolvers import reverse
 from django.contrib import messages
 from .models import User
 
 # Create your views here.
 
 def index(request):
+    # user = User.objects.get(pk = request.session['user_id'])
+    # user.auth_level = 0
+    # user.save()
     print "about to render"
     try:
         print request.session['user_id']
@@ -23,7 +27,9 @@ def login(request, methods=['POST']):
             if theMessage[0]:
                 request.session['user_id'] = theMessage[1]
                 message['success'] = "Sucessfully Logged In!"
-                return redirect('/board')
+                id = str(request.session['user_id'])
+                # return redirect('/board/show/'+id)
+                return redirect('/panel')
                 # return render(request, 'board/index.html', message)
             else:
                 messages.add_message(request, messages.ERROR, "Invalid Login")
@@ -45,11 +51,12 @@ def registerUser(request, methods=['POST']):
         "password": request.POST['password'],
         "cPassword": request.POST['cPassword']
     }
+
     theMessage = User.userManager.validator(data)
 
     if theMessage[0]:
         request.session['user_id'] = theMessage[1]
-        return redirect('/board/index')
+        return redirect('/panel')
         # return render(request, 'board/index.html', message)
     else:
         data = theMessage[1]
@@ -58,17 +65,44 @@ def registerUser(request, methods=['POST']):
             messages.add_message(request, messages.ERROR, data[message])
         return redirect('/register')
 
+def buildNewUser(request):
+    return render(request, 'uDash/createUser.html')
+
+def createNewUser(request, methods=['POST']):
+    print "register a user into db"
+
+    data = {
+        "first_name": request.POST['first_name'],
+        "last_name": request.POST['last_name'],
+        "email": request.POST['email'],
+        "password": request.POST['password'],
+        "cPassword": request.POST['cPassword']
+    }
+
+    theMessage = User.userManager.validator(data)
+
+    if theMessage[0]:
+        return redirect('/panel')
+        # return render(request, 'board/index.html', message)
+    else:
+        data = theMessage[1]
+        for message in data:
+            print message
+            messages.add_message(request, messages.ERROR, data[message])
+        return redirect('/createNewUser')
+
 def wall(request):
     pass
 
-def adminPanel(request):
-    if int(request.session['user_id']) == 0:
-        user = User.objects.filter( pk = request.session['user_id'] )
-        all_users = User.objects.all()
-        data = {'all_users': all_users}
+def panel(request):
+    user = User.objects.get(pk = request.session['user_id'])
+    all_users = User.objects.all()
+    data = {'all_users': all_users}
+
+    if int(user.auth_level) == 0:
         return render(request, 'uDash/adminPanel.html', data)
     else:
-        return render(request, 'uDash/index.html')
+        return render(request, 'uDash/panel.html', data)
 
 def remove(request, id):
     user = User.objects.filter(id=id)
@@ -128,8 +162,14 @@ def change_pass(request, id):
         return redirect('/edit')
 
 def change_desc(request, id):
-    print id
-    return render(request, 'uDash/editUser.html')
+    if request.POST['description']:
+        user = User.objects.get(pk=id)
+        user.description = request.POST['description']
+        user.save()
+        print "Description was sucessfully changed."
+
+    return redirect('/edit')
+
 def logout(request):
     request.session.flush()
     return redirect('/')

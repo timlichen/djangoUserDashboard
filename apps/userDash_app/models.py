@@ -52,7 +52,7 @@ class UserManager(models.Manager):
             user = User.objects.get(email = data['email'])
         except:
             message['failedLogin'] = "Invalid Login"
-            return False
+            return (False, "Not Okay!")
 
         password = data['password'].encode()
         uPassword = user.password.encode()
@@ -61,7 +61,7 @@ class UserManager(models.Manager):
             return (True, user.id)
         else:
             print "Not Okay!"
-            return False
+            return (False, "Not Okay!")
 
     def change_pass(self, data):
         if data['password'] == data['cPassword'] and len(data['password']) > 2:
@@ -83,6 +83,7 @@ class User(models.Model):
     last_name = models.CharField(max_length=30)
     email = models.CharField(max_length=30)
     password = models.CharField(max_length=60)
+    description = models.TextField(max_length=200)
     auth_level = models.CharField(max_length=5, choices=authorization, default = 1)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
